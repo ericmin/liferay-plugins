@@ -15,21 +15,7 @@
 		</then>
 	</if>
 
-	<antelope:stringutil string="${basedir}" property="plugin.name.beginindex">
-		<antelope:lastindexof string="${file.separator}" />
-	</antelope:stringutil>
-
-	<antelope:math
-		datatype="int"
-		operand1="${plugin.name.beginindex}"
-		operand2="1"
-		operation="+"
-		result="plugin.name.beginindex"
-	/>
-
-	<antelope:stringutil string="${basedir}" property="plugin.name">
-		<antelope:substring beginindex="${plugin.name.beginindex}" />
-	</antelope:stringutil>
+	<property name="plugin.name" value="${ant.project.name}" />
 
 	<if>
 		<antelope:endswith string="${plugin.name}" with="-shared" />
@@ -194,7 +180,7 @@
 		</copy>
 
 		<path id="service.classpath">
-			<path refid="ivy.lib.classpath" />
+			<path refid="lib.classpath" />
 			<path refid="portal.classpath" />
 			<fileset dir="${app.server.lib.portal.dir}" includes="commons-digester.jar,commons-lang.jar,easyconf.jar" />
 			<fileset dir="docroot/WEB-INF/lib" includes="*.jar" />
@@ -280,7 +266,7 @@
 		<mkdir dir="docroot/WEB-INF/service-classes" />
 
 		<path id="service.classpath">
-			<path refid="ivy.plugin.classpath" />
+			<path refid="lib.classpath" />
 			<fileset dir="${app.server.lib.global.dir}" includes="*.jar" />
 			<fileset dir="docroot/WEB-INF/lib" excludes="${plugin.name}-service.jar" includes="*.jar" />
 		</path>
@@ -302,7 +288,7 @@
 
 	<target name="build-wsdd" depends="compile">
 		<path id="wsdd.classpath">
-			<path refid="ivy.lib.classpath" />
+			<path refid="lib.classpath" />
 			<path refid="portal.classpath" />
 			<fileset dir="docroot/WEB-INF/lib" includes="*.jar" />
 			<pathelement location="docroot/WEB-INF/classes" />
@@ -1134,7 +1120,7 @@ Please find a solution that does not require portal-impl.jar.
 					<formatter type="xml" />
 					<batchtest todir="test-results/${test.type}">
 						<fileset dir="test-classes/${test.type}" includes="**/${class}.class">
-							<exclude name="${junit.test.excludes}" />
+							<filename regex="${junit.test.excludes}" negate="true" />
 						</fileset>
 					</batchtest>
 				</junit>

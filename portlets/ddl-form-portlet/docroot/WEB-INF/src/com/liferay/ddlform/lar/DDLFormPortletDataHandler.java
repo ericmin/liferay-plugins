@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -20,14 +20,12 @@ import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
-import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portlet.dynamicdatalists.model.DDLRecordSet;
 import com.liferay.portlet.dynamicdatalists.service.DDLRecordSetLocalServiceUtil;
 import com.liferay.portlet.dynamicdatamapping.model.DDMTemplate;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.portlet.PortletPreferences;
@@ -76,15 +74,15 @@ public class DDLFormPortletDataHandler extends BasePortletDataHandler {
 			return StringPool.BLANK;
 		}
 
-		Element rootElement = addExportRootElement();
-
 		DDLRecordSet recordSet = DDLRecordSetLocalServiceUtil.getRecordSet(
 			recordSetId);
 
 		StagedModelDataHandlerUtil.exportStagedModel(
-			portletDataContext, rootElement, recordSet);
+			portletDataContext, recordSet);
 
-		return rootElement.formattedString();
+		Element rootElement = addExportDataRootElement(portletDataContext);
+
+		return getExportDataRootElementString(rootElement);
 	}
 
 	@Override
@@ -98,20 +96,15 @@ public class DDLFormPortletDataHandler extends BasePortletDataHandler {
 			portletDataContext.getSourceGroupId(),
 			portletDataContext.getScopeGroupId());
 
-		if (Validator.isNull(data)) {
-			return null;
-		}
+		Element recordSetsElement =
+			portletDataContext.getImportDataGroupElement(DDLRecordSet.class);
 
-		Document document = SAXReaderUtil.read(data);
+		List<Element> recordSetElements = recordSetsElement.elements();
 
-		Element rootElement = document.getRootElement();
+		Element recordSetElement = recordSetElements.get(0);
 
-		Element recordSetElement = rootElement.element("record-set");
-
-		if (recordSetElement != null) {
-			StagedModelDataHandlerUtil.importStagedModel(
-				portletDataContext, recordSetElement);
-		}
+		StagedModelDataHandlerUtil.importStagedModel(
+			portletDataContext, recordSetElement);
 
 		Map<Long, Long> templateIds =
 			(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
