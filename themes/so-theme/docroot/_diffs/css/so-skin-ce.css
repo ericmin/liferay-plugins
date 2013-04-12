@@ -1273,10 +1273,6 @@ input[type=button], input[type=reset], input[type=submit], .aui-button button, .
 		}
 	}
 
-	.contact-group-filter .contact-group-filter-content {
-		min-height: 30px;
-	}
-
 	.social-relations a {
 		border: 1px solid transparent;
 		color: $button-text-color;
@@ -2338,10 +2334,15 @@ input[type=button], input[type=reset], input[type=submit], .aui-button button, .
 		}
 	}
 
+	.wiki-body:after {
+		clear: both;
+		content: "";
+		display: block;
+		width: 100%;
+	}
+
 	.toc {
-		float: right;
-		margin-left: 1em;
-		max-width: 25%;
+		margin-bottom: 1.5em;
 
 		ol ol {
 			margin: 0 0 0 1em;

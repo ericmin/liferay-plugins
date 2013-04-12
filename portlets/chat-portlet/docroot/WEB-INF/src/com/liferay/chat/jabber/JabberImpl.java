@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2000-2012 Liferay, Inc. All rights reserved.
+ * Copyright (c) 2000-2013 Liferay, Inc. All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -34,9 +34,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jivesoftware.smack.AccountManager;
 import org.jivesoftware.smack.Chat;
@@ -67,6 +69,8 @@ public class JabberImpl implements Jabber {
 		connection.disconnect();
 
 		_connections.remove(userId);
+
+		_onlineUserIds.remove(userId);
 	}
 
 	public String getResource(String jabberId) {
@@ -442,15 +446,19 @@ public class JabberImpl implements Jabber {
 				}
 			}
 
-			if (online == 1) {
+			if ((online == 1) && !_onlineUserIds.contains(userId)) {
 				Presence presence = new Presence(Presence.Type.available);
 
 				connection.sendPacket(presence);
+
+				_onlineUserIds.add(userId);
 			}
-			else if (online == 0) {
+			else if ((online == 0) && _onlineUserIds.contains(userId)) {
 				Presence presence = new Presence(Presence.Type.unavailable);
 
 				connection.sendPacket(presence);
+
+				_onlineUserIds.remove(userId);
 			}
 		}
 		catch (Exception e) {
@@ -460,9 +468,9 @@ public class JabberImpl implements Jabber {
 
 	private static Log _log = LogFactoryUtil.getLog(JabberImpl.class);
 
-	private static Map<Long, Connection> _connections =
-		new HashMap<Long, Connection>();
-
 	private ConnectionConfiguration _connectionConfiguration;
+	private Map<Long, Connection> _connections =
+		new HashMap<Long, Connection>();
+	private Set<Long> _onlineUserIds = new HashSet<Long>();
 
 }
